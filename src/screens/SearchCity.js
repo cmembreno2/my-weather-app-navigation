@@ -1,10 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, View, ImageBackground, Text, KeyboardAvoidingView , Platform, ActivityIndicator} from 'react-native';
+import { StyleSheet, View, ImageBackground, Text, KeyboardAvoidingView , Platform, ActivityIndicator,FlatList,TouchableOpacity} from 'react-native';
 import getImageForWeather from '../../utils/getImageForWeather';
 import SearchInput from '../components/SearchInput';
+import Card from '../components/Cards';
 
 export default class App extends React.Component{
+
+  cities = [
+        {name:'Ciudad de Guatemala',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'San Salvador',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Tegucigalpa',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Managua',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'San Jose',location:'',weather:'',temperature:0,feelsLike:''},
+        {name: 'Panama',location:'',weather:'',temperature:0,feelsLike:''}
+    ]
 
   state={
       loading: false,
@@ -15,6 +25,54 @@ export default class App extends React.Component{
       start: true,
       cityExist: true,
   };
+
+  componentDidMount() {
+    this.cities.map((cities)=>{
+      const API_KEY = '28643077d6936d2279056a7788fa22fc';
+
+      try{
+        fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${cities.name}&appid=${API_KEY}&units=metric`
+        )
+          .then(res => res.json())
+          .then(json => {
+            console.log(json)
+            elementIndex = this.cities.findIndex((obj => obj.name == cities.name));
+            console.log("Before update: ", this.cities[elementIndex]);
+            this.cities[elementIndex].location = json.name;
+            this.cities[elementIndex].weather = json.weather[0].main;
+            this.cities[elementIndex].temperature = json.main.temp;
+            this.cities[elementIndex].feelsLike = json.main.feels_like;
+            console.log("After update: ", this.cities[elementIndex]);
+            /*this.cities({
+              temperature: json.main.temp,
+              weather: json.weather[0].main,
+              location: json.name,
+              feelsLike: json.main.feels_like
+            });*/
+            //console.log(this.state)
+          })
+          .catch((e)=>{
+            /*this.cities({
+              loading: false,
+              error:true,
+              start: true,
+              cityExist: false,
+              weather: 'error'
+            });*/
+          });
+      }catch(e){
+        /*this.setState({
+          loading:false,
+          error:true,
+          start: false,
+          cityExist: true,
+          weather:'error'
+        })*/
+    } 
+
+    })
+  }
   
   fetchWeather=(city)=> {
 
@@ -40,7 +98,6 @@ export default class App extends React.Component{
               start: false,
               cityExist:true
             });
-            console.log(this.state)
           })
           .catch((e)=>{
             this.setState({
@@ -133,6 +190,34 @@ export default class App extends React.Component{
             )}
         </View>
       </ImageBackground>
+      {!start && (
+      <>
+      <View style={styles.container}>
+        <FlatList
+          keyExtractor={friend=>friend.name}
+          data={this.cities}
+          renderItem={({item})=>(
+            <TouchableOpacity>
+              <Card>
+              <Text style={[styles.largeText, styles.flatTextStyle]}>
+                        {item.location}
+              </Text>
+              <Text style={[styles.smallText, styles.flatTextStyle]}>
+                          {item.weather}
+              </Text>
+              <Text style={[styles.largeText, styles.flatTextStyle]}>
+                          {item.temperature} °C
+              </Text>
+              <Text style={[styles.verySmallText, styles.flatTextStyle]}>
+                          Feels like: {item.feelsLike} °C
+              </Text>
+              </Card>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+      </>
+      )}
       <StatusBar style="auto" />
     </KeyboardAvoidingView>
   );
@@ -142,7 +227,7 @@ export default class App extends React.Component{
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#ffffff',
   },
   textStyle: {
     textAlign: 'center',
@@ -154,6 +239,17 @@ const styles = StyleSheet.create({
       },
     }),
     color: 'white',
+  },
+  flatTextStyle: {
+    textAlign: 'center',
+    ...Platform.select({
+      ios: {
+        fontFamily: 'AvenirNext-Regular',
+      },
+      android: {fontFamily: 'Roboto',
+      },
+    }),
+    color: 'black',
   },
   largeText: {
     fontSize: 44,
