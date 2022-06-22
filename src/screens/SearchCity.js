@@ -38,37 +38,20 @@ export default class App extends React.Component{
           .then(json => {
             console.log(json)
             elementIndex = this.cities.findIndex((obj => obj.name == cities.name));
-            console.log("Before update: ", this.cities[elementIndex]);
             this.cities[elementIndex].location = json.name;
             this.cities[elementIndex].weather = json.weather[0].main;
             this.cities[elementIndex].temperature = json.main.temp;
             this.cities[elementIndex].feelsLike = json.main.feels_like;
-            console.log("After update: ", this.cities[elementIndex]);
-            /*this.cities({
-              temperature: json.main.temp,
-              weather: json.weather[0].main,
-              location: json.name,
-              feelsLike: json.main.feels_like
-            });*/
-            //console.log(this.state)
           })
           .catch((e)=>{
-            /*this.cities({
-              loading: false,
-              error:true,
-              start: true,
-              cityExist: false,
-              weather: 'error'
-            });*/
+            elementIndex = this.cities.findIndex((obj => obj.name == cities.name));
+            this.cities[elementIndex].location = "";
+            this.cities[elementIndex].weather = "";
+            this.cities[elementIndex].temperature = 0;
+            this.cities[elementIndex].feelsLike = "";
           });
       }catch(e){
-        /*this.setState({
-          loading:false,
-          error:true,
-          start: false,
-          cityExist: true,
-          weather:'error'
-        })*/
+        console.log(`Error fetching weather api: ${e}`)
     } 
 
     })
