@@ -26,7 +26,8 @@ const styles = StyleSheet.create({
     },
     text:{
         fontSize:30,
-        textAlign: 'center'
+        textAlign: 'center',
+        color: "#ffffff"
     },
     imageContainer:{
         flex: 1,

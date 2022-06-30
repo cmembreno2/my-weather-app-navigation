@@ -18,7 +18,7 @@ function App() {
               color="#000000"
             />
           ), }}/>
-        <Stack.Screen name="SearchCity" component={SearchCity} options={{ title: 'Search City', headerRight:()=>(
+        <Stack.Screen name="SearchCity" component={SearchCity} options={{ title: 'World Weather', headerRight:()=>(
           <Button
               onPress={() => alert('In the input search bar please type the city you want to know weather info then tap search')}
               title="Help"

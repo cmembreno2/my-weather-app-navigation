@@ -1,61 +1,102 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, View, ImageBackground, Text, KeyboardAvoidingView , Platform, ActivityIndicator,FlatList,TouchableOpacity} from 'react-native';
+import React , {useState,useEffect} from 'react';
+import { StyleSheet, View, ImageBackground, Text, KeyboardAvoidingView , Platform, ActivityIndicator,FlatList} from 'react-native';
 import getImageForWeather from '../../utils/getImageForWeather';
 import SearchInput from '../components/SearchInput';
 import Card from '../components/Cards';
+import { weatherConditions } from '../../utils/weatherConditions';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-export default class App extends React.Component{
+const App = ()=>{
+  const [loading,setLoading]=useState(false)
+  const [location,setLocation]=useState('')
+  const [temperature,setTemperature]=useState(0)
+  const [weather,setWeather]=useState('Start')
+  const [error,setError]=useState(false)
+  const [start,setStart]=useState(true)
+  const [cityExist,setCityExist]=useState(true)
+  const [feelsLike,setFeelsLike]=useState('')
+  const [cities]=useState([
+        {name:'Alabama',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Alaska',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Arizona',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Arkansas',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'California',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'South Carolina',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'North Carolina',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Colorado',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Connecticut',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'North Dakota',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'South Dakota',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Delaware',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Florida',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Georgia',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Hawaii',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Idaho',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Illinois',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Indiana',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Iowa',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Kansas',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Kentucky',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Luisiana',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Maine',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Maryland',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Massachusetts',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Míchigan',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Minnesota',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Misisipi',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Misuri',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Montana',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Nebraska',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Nevada',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'New Jersey',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Nueva York',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'New Hampshire',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Nuevo México',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Ohio',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Oklahoma',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Oregón',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Pensilvania',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Rhode Island',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Tennessee',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Texas',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Utah',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Vermont',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Virginia',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Washington',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Wisconsin',location:'',weather:'',temperature:0,feelsLike:''},
+        {name:'Wyoming',location:'',weather:'',temperature:0,feelsLike:''}
+    ])
 
-  cities = [
-        {name:'Ciudad de Guatemala',location:'',weather:'',temperature:0,feelsLike:''},
-        {name:'San Salvador',location:'',weather:'',temperature:0,feelsLike:''},
-        {name:'Tegucigalpa',location:'',weather:'',temperature:0,feelsLike:''},
-        {name:'Managua',location:'',weather:'',temperature:0,feelsLike:''},
-        {name:'San Jose',location:'',weather:'',temperature:0,feelsLike:''},
-        {name: 'Panama',location:'',weather:'',temperature:0,feelsLike:''}
-    ]
-
-  state={
-      loading: false,
-      location: '',
-      temperature: 0,
-      weather: 'Start',
-      error:false,
-      start: true,
-      cityExist: true,
-  };
-
-  componentDidMount() {
-    this.cities.map((cities)=>{
+  useEffect(()=> {
+    cities.map((city)=>{
       const API_KEY = '28643077d6936d2279056a7788fa22fc';
 
       try{
         fetch(
-          `https://api.openweathermap.org/data/2.5/weather?q=${cities.name}&appid=${API_KEY}&units=metric`
+          `https://api.openweathermap.org/data/2.5/weather?q=${city.name}&appid=${API_KEY}&units=metric`
         )
           .then(res => res.json())
           .then(json => {
-            console.log(json)
-            elementIndex = this.cities.findIndex((obj => obj.name == cities.name));
-            this.cities[elementIndex].location = json.name;
-            this.cities[elementIndex].weather = json.weather[0].main;
-            this.cities[elementIndex].temperature = json.main.temp;
-            this.cities[elementIndex].feelsLike = json.main.feels_like;
+            elementIndex = cities.findIndex(obj => obj.name == city.name);
+            cities[elementIndex].location = json.name;
+            cities[elementIndex].weather = json.weather[0].main;
+            cities[elementIndex].temperature = json.main.temp;
+            cities[elementIndex].feelsLike = json.main.feels_like;
           })
           .catch((e)=>{
-            elementIndex = this.cities.findIndex((obj => obj.name == cities.name));
-            this.cities[elementIndex].location = "";
-            this.cities[elementIndex].weather = "";
-            this.cities[elementIndex].temperature = 0;
-            this.cities[elementIndex].feelsLike = "";
+            elementIndex = cities.findIndex(obj => obj.name == city.name);
+            cities[elementIndex].location = "";
+            cities[elementIndex].weather = "";
+            cities[elementIndex].temperature = 0;
+            cities[elementIndex].feelsLike = "";
           });
       }catch(e){
         console.log(`Error fetching weather api: ${e}`)
     } 
 
     })
-  }
+  }, [])
   
   fetchWeather=(city)=> {
 
@@ -63,49 +104,39 @@ export default class App extends React.Component{
 
     if(!city) return;
 
-    this.setState({loading: true}) 
+    setLoading(true) 
       try{
         fetch(
           `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
         )
           .then(res => res.json())
           .then(json => {
-            console.log(json)
-            this.setState({
-              temperature: json.main.temp,
-              weather: json.weather[0].main,
-              location: json.name,
-              loading: false,
-              error:false,
-              feelsLike: json.main.feels_like,
-              start: false,
-              cityExist:true
-            });
+            setTemperature(json.main.temp)
+            setWeather(json.weather[0].main)
+            setLocation(json.name)
+            setLoading(false)
+            setError(false)
+            setFeelsLike(json.main.feels_like)
+            setStart(false)
+            setCityExist(true)
+            
           })
           .catch((e)=>{
-            this.setState({
-              loading: false,
-              error:true,
-              start: true,
-              cityExist: false,
-              weather: 'error'
-            });
+            setWeather('error')
+            setLoading(false)
+            setError(true)
+            setStart(true)
+            setCityExist(false)
           });
       }catch(e){
-        this.setState({
-          loading:false,
-          error:true,
-          start: false,
-          cityExist: true,
-          weather:'error'
-        })
-    } 
+        setWeather('error')
+        setLoading(false)
+        setError(true)
+        setStart(false)
+        setCityExist(true)
+    }
   }
   
-  render(){
-
-    const {location,temperature,weather,loading,error,feelsLike,start,cityExist} = this.state;
-
     return (
     <KeyboardAvoidingView style={styles.container} behavior="height">
       <StatusBar barStyle="light-content"/>
@@ -115,10 +146,17 @@ export default class App extends React.Component{
           imageStyle={styles.image}
         >
           <View style={styles.detailsContainer}>
+            <View>
+            <SearchInput 
+                          placeholder='Search any city' 
+                          onSubmit={fetchWeather}
+                />
+            </View>
             <ActivityIndicator animating={loading} color = "white" size="large"/>
 
             {!loading && (
               <View>
+                
                 {error && (
                   <View>
                     {cityExist && (
@@ -139,7 +177,7 @@ export default class App extends React.Component{
                   <View>
                     {start && (
                         <Text style={[styles.largeText, styles.textStyle]}>
-                        LET'S START!
+                          LET'S START!
                         </Text>
                       )}
 
@@ -150,6 +188,11 @@ export default class App extends React.Component{
                         {location}
                         </Text>
                         <Text style={[styles.smallText, styles.textStyle]}>
+                        <MaterialCommunityIcons
+                            size={40}
+                            name={weatherConditions[weather].icon}
+                            color={'#fff'}
+                        />
                           {weather}
                         </Text>
                         <Text style={[styles.largeText, styles.textStyle]}>
@@ -160,42 +203,40 @@ export default class App extends React.Component{
                         </Text>
                       </>
                     )}
+                    
                   </View>
                 )}
-
-
-            
-                <SearchInput 
-                  placeholder='Search any city' 
-                  onSubmit={this.fetchWeather}
-                />
+                
               </View>
             )}
         </View>
       </ImageBackground>
       {!start && (
       <>
-      <View style={styles.container}>
+      <View style={styles.flatContainer}>
         <FlatList
-          keyExtractor={friend=>friend.name}
-          data={this.cities}
+         // keyExtractor={friend=>friend.name}
+          data={cities}
           renderItem={({item})=>(
-            <TouchableOpacity>
-              <Card>
-              <Text style={[styles.largeText, styles.flatTextStyle]}>
+              <Card _weather={item.weather}>
+              <Text style={[styles.flatSmallText, styles.flatTextStyle]}>
                         {item.location}
               </Text>
-              <Text style={[styles.smallText, styles.flatTextStyle]}>
+              <Text style={[styles.flatSmallText, styles.flatTextStyle]}>
+                <MaterialCommunityIcons
+                            size={20}
+                            name={weatherConditions[item.weather].icon}
+                            color={'#ffffff'}
+                />
                           {item.weather}
               </Text>
-              <Text style={[styles.largeText, styles.flatTextStyle]}>
+              <Text style={[styles.flatSmallText, styles.flatTextStyle]}>
                           {item.temperature} °C
               </Text>
-              <Text style={[styles.verySmallText, styles.flatTextStyle]}>
+              <Text style={[styles.flatSmallText, styles.flatTextStyle]}>
                           Feels like: {item.feelsLike} °C
               </Text>
               </Card>
-            </TouchableOpacity>
           )}
         />
       </View>
@@ -205,11 +246,15 @@ export default class App extends React.Component{
     </KeyboardAvoidingView>
   );
   }
-}
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff'
+  },
+  flatContainer: {
+    flex:1,
     backgroundColor: '#ffffff',
   },
   textStyle: {
@@ -232,14 +277,17 @@ const styles = StyleSheet.create({
       android: {fontFamily: 'Roboto',
       },
     }),
-    color: 'black',
+    color: '#ffffff',
   },
   largeText: {
-    fontSize: 44,
+    fontSize: 30,
   },
   smallText: {
-    fontSize: 18,
-    },
+    fontSize: 20,
+  },
+  flatSmallText: {
+    fontSize: 15,
+  },
   imageContainer:{
     flex: 1,
   },
@@ -259,3 +307,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     }
 });
+
+export default App;
