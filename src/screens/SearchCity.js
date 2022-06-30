@@ -214,6 +214,9 @@ const App = ()=>{
       {!start && (
       <>
       <View style={styles.flatContainer}>
+        <View>
+          <Text style={styles.text}>USA Weather by State</Text>
+        </View>
         <FlatList
          // keyExtractor={friend=>friend.name}
           data={cities}
@@ -305,7 +308,12 @@ const styles = StyleSheet.create({
   },
   verySmallText: {
     fontSize: 14,
-    }
+    },
+  text:{
+        fontSize:20,
+        textAlign: 'center',
+        color: "#000000"
+  }
 });
 
 export default App;
